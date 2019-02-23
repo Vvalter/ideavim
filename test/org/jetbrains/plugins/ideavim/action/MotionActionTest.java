@@ -507,6 +507,7 @@ public class MotionActionTest extends VimTestCase {
     myFixture.checkResult("abcde<tag></TAG>hi");
   }
 
+  // TODO This does not work in vim
   //|d| |v_it|
   public void testDeleteInnerTagBlockBetweenWithSpaceBeforeTag() {
     typeTextInFile(parseKeys("dit"), "abcde< tag>f<caret>g</ tag>hi");
@@ -759,6 +760,24 @@ public class MotionActionTest extends VimTestCase {
     myFixture.checkResult("abcde</tag>fg<tag>hi");
   }
 
+  //|d| |v_it|
+  public void testDeleteInnerTagIsCaseInsensitive() {
+    typeTextInFile(parseKeys("dit"), "<a> <as<caret>df> </A>");
+    myFixture.checkResult("<a></A>");
+  }
+
+  // VIM-1090 |d| |v_at|
+  public void testDeletOuterTagDuplicateTags() {
+    typeTextInFile(parseKeys("dat"), "<a><a></a></a><caret>");
+    myFixture.checkResult("<a></a>");
+  }
+  // VIM-1090 |d| |v_it|
+  // Adapted from vim source file "test_textobjects.vim"
+  public void testDeletInnerTagDuplicateTags() {
+    typeTextInFile(parseKeys("dit"), "<b>asd<caret><i>as<b />df</i>asdf</b>");
+    myFixture.checkResult("-<b></b>-");
+  }
+
   // |v_it|
   public void testFileStartsWithSlash() {
     configureByText("/*hello\n" +
@@ -768,6 +787,7 @@ public class MotionActionTest extends VimTestCase {
     assertPluginError(true);
   }
 
+  // TODO add more tests relating to count
   // VIM-1427
   public void testDeleteOuterTagWithCount() {
     typeTextInFile(parseKeys("d2at"),"<a><b><c><caret></c></b></a>");
